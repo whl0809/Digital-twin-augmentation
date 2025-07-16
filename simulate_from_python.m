@@ -73,12 +73,12 @@ function label = simulate_from_python(rowData)
         o_range.RV_m.range = [15 400];
         o_range.LV_m.range = [35 400];
         o_range.MVr.range = [1 5];
-        o_range.MS.range = [0 4];
+        o_range.MS.range = [-1 4];
         o_range.AVr.range = [1 5];
-        o_range.AS.range = [0 4];
+        o_range.AS.range = [-1 4];
         o_range.TVr.range = [1 5];
         o_range.PVr.range = [1 5];
-        o_range.PS.range = [0 4];
+        o_range.PS.range = [-1 4];
         fields = fieldnames(o_range);
         % 检查所有变量是否都在范围内
         label = 1;

@@ -5,7 +5,7 @@ N = size(inputData, 1);
 labels = zeros(N, 1);
 % 并行处理每一行
 if isempty(gcp('nocreate'))
-    parpool(12);
+    parpool(4);
     parfor i = 1:N
         labels(i) = simulate_from_python(inputData(i, :));
     end
