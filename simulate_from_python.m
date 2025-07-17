@@ -1,7 +1,6 @@
 function label = simulate_from_python(rowData)
     % rowData is a 1xN double array from Python
     MRI_flag = 1;
-
     % Define variable names (must match your original CSV header)
     colNames = {
         'HR', 'C_SA', 'C_SV', 'C_PA', 'C_PV', 'R_SA', 'R_tSA', 'R_PA', 'R_tPA', 'R_SV', ...
@@ -15,7 +14,7 @@ function label = simulate_from_python(rowData)
 
     try
         % Convert to table
-        FakeParamsT = array2table(rowData, 'VariableNames', colNames);
+        FakeParamsT = array2table(rowData(2:end), 'VariableNames', colNames);
 
         % Run simulation
         [params, init] = ProcessParamsFromVAE(FakeParamsT);
@@ -94,6 +93,8 @@ function label = simulate_from_python(rowData)
                 end
             end
         end
+        % PATIENT_NO = rowData(1);
+        % PlotFakeDTSim;
     catch ME
         disp(['Simulation error: ' ME.message]);  % Optional: log the error
         label = 0;  % Return large penalty on error

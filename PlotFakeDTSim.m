@@ -13,7 +13,7 @@
 % Last modified: 10/29/2024
 
 trng = [t(1) t(end)];
-figure(101); clf;
+fig = figure('Visible', 'off');
 tiles = tiledlayout(2,3);
 tiles.TileSpacing = 'compact';
 tiles.Padding = 'tight';
@@ -135,7 +135,7 @@ set(lgd, 'Position', lgdPosition);
 xlabel(fig6,'time (s)','FontSize',12); ylabel(fig6,'Thickness (cm)','FontSize',12);
 
 % 保存图像为300dpi PNG
-outputFolder = 'Virtual patients 0617';
+outputFolder = 'Virtual patients 0717';
 if ~exist(outputFolder, 'dir')
     mkdir(outputFolder);
 end
@@ -145,4 +145,6 @@ filename = sprintf('Virtual_Patient_%03d.png',PATIENT_NO);
 filepath = fullfile(outputFolder, filename);
 
 % 保存为高分辨率 PNG
-print(gcf, filepath, '-dpng', '-r300');  % -r300 指定300dpi
+print(fig, filepath, '-dpng', '-r300');  % -r300 指定300dpi
+
+close(fig);  % 及时关闭figure，释放内存

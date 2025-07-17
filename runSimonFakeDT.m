@@ -20,37 +20,17 @@ try
     options = odeset('Mass', M, 'RelTol', 1e-7, 'AbsTol', 1e-7, 'MaxStep', T/30); % set options for ode
     warning('off', 'all'); % turn off warnings message on the command window
     maxTime = 10; % maximum time for odeWithTimeout function
-    lastwarn('', ''); % clear the warning
-    initialStep = 1; % initial step size
-    success = false; % flag for success status
-
-    % This loop is designed primarily for optimization. The differential equations are very stiff,
-    % especially for xm_sep, which may approach 0, causing the numerical solver to crash or get stuck.
-    % This loop can penalize this condition, although it is not perfect. Ideally, the solution should
-    % not depend on the initial step, but the equations are too stiff for the numerical solver to handle.
-    while true
-        options.InitialStep = initialStep;  % update the initial step size
-        [t, y] = odeWithTimeout1(@dXdTOnGL, [0, 20*T], init_vec, options, params, maxTime); % run the ODE solver
-        [lastWarnMsg, lastWarnId] = lastwarn; % get warning information
-        if isempty(lastWarnMsg)
-            success = true; % if no warnings, update success status
-            break; % exit the loop
-        end
-        lastwarn('', ''); % clear the warning
-        initialStep = initialStep / 10^(0.1); % decrease the initial step size
-        if initialStep < eps % check if the initial step size is less than machine precision
-            break; % if the initial step size is too small, exit the loop
-        end
+    lastwarn('');   % 清空上一个warning
+    [t, y] = odeWithTimeout1(@dXdTOnGL, [0, 30*T], init_vec, options, params, maxTime);
+    [lastWarnMsg, lastWarnId] = lastwarn;  % 检查warning
+    if ~isempty(lastWarnMsg)
+        error(['ODE solver warning: ', lastWarnMsg]);  % 直接终止，并抛出warning信息
     end
 
-    if ~success
-        error('Unable to find a suitable initial step size. All attempts triggered a warning.'); % if the loop finishes without success, throw an error
-    else
-        % Find the index where t is within the last two periods, which reflects the steady state
-        startIndex = find(t >= t(end) - 2*T, 1, 'first');
-        lastTwoPeriodsT = t(startIndex:end);
-        lastTwoPeriodsY = y(startIndex:end, :);
-    end
+    % Find the index where t is within the last two periods, which reflects the steady state
+    startIndex = find(t >= t(end) - 2*T, 1, 'first');
+    lastTwoPeriodsT = t(startIndex:end);
+    lastTwoPeriodsY = y(startIndex:end, :);
     t = lastTwoPeriodsT-lastTwoPeriodsT(1);
     y = lastTwoPeriodsY; % solutions of ODE
     xm_LV  = y(:,1);
@@ -300,7 +280,7 @@ else
     % but the results turned out to be unrealistic.
     % The optimization process tends to produce only the E wave.
     % Surface adjustments might provide a minimal possible solution.
-    % error('E_A_ratio = 100');
+    error('E_A_ratio = 100');
 end
 
 

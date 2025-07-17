@@ -5,3 +5,7 @@
 /FiguresVirtualPatients
 *.asv
 /Virtual patients 0617
+/.venv
+/.venv
+*.png
+*.pyc
