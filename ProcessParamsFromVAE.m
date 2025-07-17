@@ -120,9 +120,17 @@ params.Vw_SEP = optVw_SEP;
 params.Vw_RV = optVw_RV;
 params.LvSepR = optLvSepR;
 params.Vh0 = optLVEDV + optRVEDV + optVw_LV + optVw_SEP + optVw_RV + LAVmin + RAVmin;
-
-params.tau_TR = 0.15;
-params.tau_TS = 0.3;
+if ParamsFormVAE.Sex == 1
+    QS2 = 545.17-2.117*ParamsFormVAE.HR;
+else
+    QS2 = 546.5-2.0*ParamsFormVAE.HR;
+end
+IVRT = 70*75/ParamsFormVAE.HR;
+ActT = QS2+IVRT;
+k_TS = (ActT*ParamsFormVAE.HR/6e4)*2/3; % Beginning of cardiac cycle to maximal systole  
+k_TR = (ActT*ParamsFormVAE.HR/6e4)*1/3; % Relaxation time fraction 
+params.tau_TR = k_TR;
+params.tau_TS = k_TS;
 params.HR = ParamsFormVAE.HR;
 params.T = 60/ParamsFormVAE.HR;
 params.C_PA = ParamsFormVAE.C_PA;
@@ -133,7 +141,7 @@ params.R_PA = ParamsFormVAE.R_PA;
 params.R_tPA = ParamsFormVAE.R_tPA;
 params.R_SA = ParamsFormVAE.R_SA;
 params.R_tSA = ParamsFormVAE.R_tSA;
-params.R_Veins = 0.04;
+% params.R_Veins = 0.04;
 params.R_SV = ParamsFormVAE.R_SV;
 params.R_PV = ParamsFormVAE.R_SV;
 params.R_a_c = ParamsFormVAE.R_a_c;

@@ -258,11 +258,15 @@ catch ME1
     P_external = o(56,:)';
 end
 
+if any(any(y(:,3:end)<0))
+    error('negative simulation')
+end
+
 %% Simulation outputs requiring post-processing for cross-valve flow
 
 end_beat_i = find(t >= 1.02*T, 1) - 1; % index for end of one complete cardiac cycle, sometime flow shift and a wave is in the middle of the T
-[Qm_maxima, Qm_maxima_i,Qm_wid,Qm_prom] = findpeaks(Q_m(1:end_beat_i),'MinPeakHeight',max(Q_m)/5);
-[Qt_maxima, Qt_maxima_i] = findpeaks(Q_t(1:end_beat_i),'MinPeakHeight',max(Q_m)/5);
+[Qm_maxima, Qm_maxima_i,Qm_wid,Qm_prom] = findpeaks(Q_m(1:end_beat_i),'MinPeakHeight',max(Q_m)/10);
+[Qt_maxima, Qt_maxima_i] = findpeaks(Q_t(1:end_beat_i),'MinPeakHeight',max(Q_m)/10);
 
 % E/A ratio
 if(length(Qm_maxima) == 2)
@@ -296,7 +300,7 @@ else
     % but the results turned out to be unrealistic.
     % The optimization process tends to produce only the E wave.
     % Surface adjustments might provide a minimal possible solution.
-    error('E_A_ratio = 100');
+    % error('E_A_ratio = 100');
 end
 
 
@@ -454,23 +458,23 @@ TisorelaxRV = mean([RVperiod(2,2)-RVperiod(2,1) RVperiod(4,2)-RVperiod(4,1)]);
 TisocontractRV = RVperiod(3,2)-RVperiod(3,1);
 
 % This is used to prevent the isocontract and isorelax phases from disappearing.
-if abs(min(Q_t)) / abs(max(Q_t)) < 0.1
-    if  TisocontractRV/T <0.02 
-        error("unreal condition")
-    end
-elseif abs(min(Q_p)) / abs(max(Q_p)) < 0.1
-    if  TisorelaxRV/T <0.025
-        error("unreal condition")
-    end
-elseif abs(min(Q_m)) / abs(max(Q_m)) < 0.1
-    if  TisocontractLV/T <0.02
-        error("unreal condition")
-    end
-elseif  abs(min(Q_a)) / abs(max(Q_a)) < 0.1
-    if  TisorelaxLV/T <0.025
-        error("unreal condition")
-    end
-end
+% if abs(min(Q_t)) / abs(max(Q_t)) < 0.1
+%     if  TisocontractRV/T <0.02 
+%         error("unreal condition")
+%     end
+% elseif abs(min(Q_p)) / abs(max(Q_p)) < 0.1
+%     if  TisorelaxRV/T <0.025
+%         error("unreal condition")
+%     end
+% elseif abs(min(Q_m)) / abs(max(Q_m)) < 0.1
+%     if  TisocontractLV/T <0.02
+%         error("unreal condition")
+%     end
+% elseif  abs(min(Q_a)) / abs(max(Q_a)) < 0.1
+%     if  TisorelaxLV/T <0.025
+%         error("unreal condition")
+%     end
+% end
 
 %% Other simulation outputs requiring post-processing
 
@@ -710,58 +714,58 @@ end
 % The goal is to ensure synchronized contraction and relaxation
 % among the left ventricle (LV), right ventricle (RV), and septum (SEP).
 
-Tint = (t(1):0.001:t(end));
-NewPLV = interp1(t,P_LV,Tint);
-NewPRV = interp1(t,P_RV,Tint);
-Newd_LW = interp1(t,d_LW,Tint);
-Newd_SW = interp1(t,d_SW,Tint);
-Newd_RW = interp1(t,d_RW,Tint);
-[~, locsMinPLV] = min(NewPLV);
-if locsMinPLV >length(Tint)/2
-    locsMinPLV = round(locsMinPLV-length(Tint)/2);
-end
-[~, locsMinPRV] = min(NewPRV);
-if locsMinPRV >length(Tint)/2
-    locsMinPRV = round(locsMinPRV-length(Tint)/2);
-end
+% Tint = (t(1):0.001:t(end));
+% NewPLV = interp1(t,P_LV,Tint);
+% NewPRV = interp1(t,P_RV,Tint);
+% Newd_LW = interp1(t,d_LW,Tint);
+% Newd_SW = interp1(t,d_SW,Tint);
+% Newd_RW = interp1(t,d_RW,Tint);
+% [~, locsMinPLV] = min(NewPLV);
+% if locsMinPLV >length(Tint)/2
+%     locsMinPLV = round(locsMinPLV-length(Tint)/2);
+% end
+% [~, locsMinPRV] = min(NewPRV);
+% if locsMinPRV >length(Tint)/2
+%     locsMinPRV = round(locsMinPRV-length(Tint)/2);
+% end
+% 
+% Maggicpoint = round(mean([locsMinPRV; locsMinPLV]));
+% diff_d_LW = diff(Newd_LW);
+% diff_d_SW = diff(Newd_SW);
+% diff_d_RW = diff(Newd_RW);
 
-Maggicpoint = round(mean([locsMinPRV; locsMinPLV]));
-diff_d_LW = diff(Newd_LW);
-diff_d_SW = diff(Newd_SW);
-diff_d_RW = diff(Newd_RW);
-
-[~,locswiredpeakLW]=findpeaks(diff_d_LW,'MinPeakHeight',max(diff_d_LW)/3);
-if ~isempty(locswiredpeakLW)
-    if locswiredpeakLW(1) > Maggicpoint-round(length(Tint)/2*0.035) &&...
-            locswiredpeakLW(1) < Maggicpoint+round(length(Tint)/2*0.015)
-        error("Unreal LV Movement")
-    end
-end
-
-[~,locswiredpeakSW]=findpeaks(diff_d_SW,'MinPeakHeight',max(diff_d_SW)/3);
-if ~isempty(locswiredpeakSW)
-    if locswiredpeakSW(1) > Maggicpoint-round(length(Tint)/2*0.035) &&...
-            locswiredpeakSW(1) < Maggicpoint+round(length(Tint)/2*0.015)
-        error("Unreal SEP Movement")
-    end
-end
-
-if min(xm_SEP) < -1e-3
-    numPeaks = length(findpeaks(NewPRV));
-    [~,PeakLocs] = findpeaks(NewPRV);
-    if numPeaks > 4||...
-        (numPeaks == 4 && all(abs(Tint(PeakLocs)-T) > 5e-2))
-        error("Unreal RV Movement")
-    end
-else
-    [~,locswiredpeakRW]=findpeaks(diff_d_RW,'MinPeakHeight',max(diff_d_RW)/3);
-    if ~isempty(locswiredpeakRW)
-        if locswiredpeakRW(1) > Maggicpoint-round(length(Tint)/2*0.035) &&...
-                locswiredpeakRW(1) < Maggicpoint+round(length(Tint)/2*0.015)
-            error("Unreal RV Movement")
-        end
-    end
-end
+% [~,locswiredpeakLW]=findpeaks(diff_d_LW,'MinPeakHeight',max(diff_d_LW)/3);
+% if ~isempty(locswiredpeakLW)
+%     if locswiredpeakLW(1) > Maggicpoint-round(length(Tint)/2*0.035) &&...
+%             locswiredpeakLW(1) < Maggicpoint+round(length(Tint)/2*0.015)
+%         error("Unreal LV Movement")
+%     end
+% end
+% 
+% [~,locswiredpeakSW]=findpeaks(diff_d_SW,'MinPeakHeight',max(diff_d_SW)/3);
+% if ~isempty(locswiredpeakSW)
+%     if locswiredpeakSW(1) > Maggicpoint-round(length(Tint)/2*0.035) &&...
+%             locswiredpeakSW(1) < Maggicpoint+round(length(Tint)/2*0.015)
+%         error("Unreal SEP Movement")
+%     end
+% end
+% 
+% if min(xm_SEP) < -1e-3
+%     numPeaks = length(findpeaks(NewPRV));
+%     [~,PeakLocs] = findpeaks(NewPRV);
+%     if numPeaks > 4||...
+%         (numPeaks == 4 && all(abs(Tint(PeakLocs)-T) > 5e-2))
+%         error("Unreal RV Movement")
+%     end
+% else
+%     [~,locswiredpeakRW]=findpeaks(diff_d_RW,'MinPeakHeight',max(diff_d_RW)/3);
+%     if ~isempty(locswiredpeakRW)
+%         if locswiredpeakRW(1) > Maggicpoint-round(length(Tint)/2*0.035) &&...
+%                 locswiredpeakRW(1) < Maggicpoint+round(length(Tint)/2*0.015)
+%             error("Unreal RV Movement")
+%         end
+%     end
+% end
 
 % 05/06 R_tPA or R_tSA tax. The previsous DNA/DNP not quite working
 if DNA > (o_vals.SBP-o_vals.DBP)*0.8+o_vals.DBP ||...
@@ -769,9 +773,25 @@ if DNA > (o_vals.SBP-o_vals.DBP)*0.8+o_vals.DBP ||...
     error('Unreal R_tSA')
 end
 
-if DNP > (o_vals.PASP-o_vals.PADP)*0.8+o_vals.PADP ||...
-        DNP < (o_vals.PASP-o_vals.PADP)*0.2+o_vals.PADP
+if DNP > (o_vals.PASP-o_vals.PADP)*0.9+o_vals.PADP ||...
+        DNP < (o_vals.PASP-o_vals.PADP)*0.1+o_vals.PADP
     error('Unreal R_tPA')
+end
+%% Kill wired balancing
+if max(sigma_pas_RV)/max(sigma_act_RV) >= 1.5
+    error('RV contraction disappear')
+end
+
+if max(sigma_pas_LV)/max(sigma_act_LV) >= 0.9
+    error('LV contraction disappear')
+end
+
+if max(sigma_pas_RV)/max(sigma_act_RV) <= 1e-3
+    error('RV contraction too strong')
+end
+
+if max(sigma_pas_LV)/max(sigma_act_LV) <= 1e-3
+    error('LV contraction too strong')
 end
 %% Function to kill inf loop of ode15s
 

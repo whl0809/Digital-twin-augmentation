@@ -88,7 +88,7 @@ Lsc0    = 1.51;
 Lse_iso = 0.04;
     
 % Sarcomere length shortening velocity (um s^(-1))
-v_max = 3.5; % 7 / 2
+v_max = 7; % 7 / 2
 % Passive stress steepness parameter (dimensionless) 
 gamma = 7.5; 
 
