@@ -24,7 +24,7 @@ function label = simulate_from_python(rowData)
         
         o_range.SBP.range = [70 300];
         o_range.DBP.range = [35 170];
-        o_range.LVEDV.range = [70 1050];
+        o_range.LVEDV.range = [50 1050];
         % o_range.EF.range = ;
         o_range.LVESV.range = [20 800];
         o_range.EAr.range = [0.2 20];

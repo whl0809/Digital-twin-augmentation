@@ -118,7 +118,7 @@ catch ME1
     options = odeset('Mass', M, 'MassSingular', 'yes', 'RelTol', 1e-7, 'AbsTol', 1e-7, 'MaxStep', params.T / 30);
     maxTime = 100;
 
-    [t, y, ~, ~, ~, o] = odeWithTimeout2(@dXdT, [0, 22 * params.T], init_vec, options, params, iniGeo, maxTime);
+    [t, y, ~, ~, ~, o] = odeWithTimeout2(@dXdT, [0, 32 * params.T], init_vec, options, params, iniGeo, maxTime);
 
     %% Collect simulation outputs from the last two cardiac cycles
     % Identify the starting index for the last two periods
@@ -766,11 +766,11 @@ if max(sigma_pas_LV)/max(sigma_act_LV) >= 0.9
     error('LV contraction disappear')
 end
 
-if max(sigma_pas_RV)/max(sigma_act_RV) <= 1e-3
+if max(sigma_pas_RV)/max(sigma_act_RV) <= 1e-3 && o_vals.RVEDP > 5 
     error('RV contraction too strong')
 end
 
-if max(sigma_pas_LV)/max(sigma_act_LV) <= 1e-3
+if max(sigma_pas_LV)/max(sigma_act_LV) <= 1e-3 && o_vals.LVEDP > 5 
     error('LV contraction too strong')
 end
 %% Function to kill inf loop of ode15s
