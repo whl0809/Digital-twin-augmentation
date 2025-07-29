@@ -78,7 +78,11 @@ d_SA = .15;              d_PA = .10;
 d_SV = .65;              d_PV = .10;
 
 LAVmin = ParamsFormVAE.LAV0u/0.9; 
-RAVmin = ParamsFormVAE.RAV0u/0.9;
+if ParamsFormVAE.Sex == 1
+   RAVmin = 32/25*LAVmin; 
+else % female
+   RAVmin = 23/22*LAVmin;
+end
 
 Vd = Vtot - optLVEDV - optRVEDV - RAVmin - LAVmin; % distributed volume (available for other compartments)
 
@@ -158,8 +162,13 @@ params.k_pas_LV = ParamsFormVAE.k_pas_LV;
 params.k_pas_RV = ParamsFormVAE.k_pas_RV;
 params.LAV0c = ParamsFormVAE.LAV0c;
 params.RAV0c = ParamsFormVAE.LAV0c; 
-params.RAV0u = ParamsFormVAE.RAV0u;
+
 params.LAV0u = ParamsFormVAE.LAV0u; % need extra Gen
+if ParamsFormVAE.Sex == 1
+    params.RAV0u = 32/25*params.LAV0u;
+else
+    params.RAV0u = 23/22*params.LAV0u;
+end
 params.LAV1c = 5;
 params.RAV1c = 5; 
 params.LEa = 0.60; %Atrial active contraction parameter

@@ -1,4 +1,4 @@
-function label = simulate_from_python(rowData)
+function [label,o_vals] = simulate_from_python(rowData)
     % rowData is a 1xN double array from Python
     MRI_flag = 1;
     % Define variable names (must match your original CSV header)
@@ -9,7 +9,7 @@ function label = simulate_from_python(rowData)
         'Amref_LV', 'Amref_SEP', 'Amref_RV', ...
         'Vw_LV', 'Vw_SEP', 'Vw_RV', ...
         'LAV0u', 'LAV0c', ...
-        'K1', 'Height', 'Weight', 'Sex','RAV0u','expPeri'
+        'K1', 'Height', 'Weight', 'Sex','expPeri'
     };
 
     try
@@ -19,27 +19,26 @@ function label = simulate_from_python(rowData)
         % Run simulation
         [params, init] = ProcessParamsFromVAE(FakeParamsT);
         runSimonFakeDT;
-        
         o_range = struct();
         
-        o_range.SBP.range = [70 300];
-        o_range.DBP.range = [35 170];
-        o_range.LVEDV.range = [50 1050];
+        o_range.SBP.range = [60 250];
+        o_range.DBP.range = [30 150];
+        o_range.LVEDV.range = [50 750];
         % o_range.EF.range = ;
-        o_range.LVESV.range = [20 800];
+        o_range.LVESV.range = [20 500];
         o_range.EAr.range = [0.2 20];
-        o_range.LAVmax.range = [15 400];
+        o_range.LAVmax.range = [15 500];
         % o_range.LAVmin.range = ;
         % o_range.SV_LA.range = ;
         o_range.RVEDV.range = [50 700];
         o_range.RVESV.range = [20 650];
-        o_range.RVEF.range = [5 85];
+        o_range.EF.range = [5 85];
         % o_range.RAVmax.range = ;
         % o_range.RAVmin.range = ;
         o_range.RAPmax.range = [0 50];
         % o_range.RAPmin.range = ;
         o_range.RAPmean.range = [0 50];
-        o_range.PASP.range = [10 100];
+        o_range.PASP.range = [10 150];
         o_range.PADP.range = [3 75];
         o_range.PCWP.range = [3 50];
         o_range.PCWPmax.range = [3 75];
@@ -52,10 +51,10 @@ function label = simulate_from_python(rowData)
         o_range.Hed_SW.range = [0.2 3];
         o_range.Hed_RW.range = [0.2 3];
         o_range.RVEDP.range = [0 50];
-        o_range.P_RV_min.range = [0 25];
+        o_range.P_RV_min.range = [0 35];
         o_range.LVEDP.range = [0 50];
-        o_range.P_LV_min.range = [0 25];
-        o_range.RVSP.range = [10 100];
+        o_range.P_LV_min.range = [0 35];
+        o_range.RVSP.range = [10 150];
         o_range.LVESP.range = [5 250];
         % o_range.MVmg.range = [0 100];
         % o_range.AVpg.range = [0 150];
@@ -70,7 +69,7 @@ function label = simulate_from_python(rowData)
         % o_range.RVIDd.range = ;
         % o_range.RVIDs.range = ;
         o_range.RV_m.range = [15 400];
-        o_range.LV_m.range = [35 400];
+        o_range.LV_m.range = [35 500];
         o_range.MVr.range = [1 5];
         o_range.MS.range = [-1 4];
         o_range.AVr.range = [1 5];
@@ -88,8 +87,7 @@ function label = simulate_from_python(rowData)
                 val = o_vals.(field);
                 range = o_range.(field).range;
                 if val < range(1) || val > range(2)
-                    label = 0;
-                    break;
+                    error('Simulation out of bound')
                 end
             end
         end
@@ -98,5 +96,6 @@ function label = simulate_from_python(rowData)
     catch ME
         disp(['Simulation error: ' ME.message]);  % Optional: log the error
         label = 0;  % Return large penalty on error
+        o_vals = struct();
     end
 end
