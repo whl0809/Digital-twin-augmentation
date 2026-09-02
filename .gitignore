@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Torchvision demo downloads (the MNIST loader in the archived notebooks)
+data/MNIST/
+
+# Fresh run artefacts. The reference outputs already committed under
+# outputs/ stay tracked (.gitignore does not apply to tracked files); new
+# runs land here untracked. Use `git add -f` to promote one.
+outputs/generated/*.csv
+outputs/figures/*.png
+outputs/figures/*.pdf
+!outputs/README.md
+!outputs/*/.gitkeep
